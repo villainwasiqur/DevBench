@@ -1,6 +1,6 @@
 {
   "name": "all-in-one-dev-toolkit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A fast, offline desktop toolbox for everyday developer utilities.",
   "main": "./out/main/index.js",
   "author": "Dev Toolkit",
@@ -10,12 +10,48 @@
     "type": "git",
     "url": "git+https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit.git"
   },
+  "build": {
+    "appId": "com.devtoolkit.allinone",
+    "productName": "All-In-One Dev Toolkit",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "All-In-One Dev Toolkit",
+      "artifactName": "All-In-One-Dev-Toolkit-${version}-Setup.${ext}"
+    }
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "start": "electron-vite preview",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "npm run build && node scripts/e2e-smoke.mjs",
     "build": "npm run typecheck && electron-vite build",
     "build:win": "npm run build && electron-builder --win"
   },
@@ -32,6 +68,7 @@
     "electron-builder": "^26.18.0",
     "electron-vite": "^6.0.0",
     "typescript": "^5.9.3",
-    "vite": "^8.3.5"
+    "vite": "^8.3.5",
+    "vitest": "^5.1.0"
   }
 }

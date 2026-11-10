@@ -22,10 +22,11 @@ function createWindow(): void {
     height: 840,
     minWidth: 960,
     minHeight: 640,
-    show: false,
+    show: true,
     frame: false,
     backgroundColor: '#0a0e14',
     title: 'All-in-One Dev Toolkit',
+    icon: isDev ? join(app.getAppPath(), 'build/icon.png') : undefined,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -37,7 +38,6 @@ function createWindow(): void {
 
   mainWindow = win
 
-  win.once('ready-to-show', () => win.show())
   win.webContents.on('preload-error', (_event, preloadPath, error) => {
     console.error(`Unable to load preload script at ${preloadPath}:`, error)
   })
@@ -111,12 +111,19 @@ if (!hasSingleInstanceLock) {
     mainWindow.focus()
   })
 
+  app.on('web-contents-created', (_event, contents) => {
+    contents.on('will-attach-webview', (event) => {
+      event.preventDefault()
+    })
+  })
+
   app.whenReady().then(() => {
     app.setAppUserModelId('com.devtoolkit.allinone')
     Menu.setApplicationMenu(null)
     session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => {
       callback(false)
     })
+    session.defaultSession.setPermissionCheckHandler(() => false)
 
     registerIpcHandlers()
     createWindow()
