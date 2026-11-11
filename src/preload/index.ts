@@ -28,6 +28,12 @@ const api = {
   },
   app: {
     version: (): Promise<string> => ipcRenderer.invoke('app:version')
+  },
+  net: {
+    fetchJson: (
+      url: string
+    ): Promise<{ ok: true; data: unknown } | { ok: false; error: string }> =>
+      ipcRenderer.invoke('net:fetch-json', url)
   }
 } as const
 

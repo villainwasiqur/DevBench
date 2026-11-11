@@ -28,29 +28,29 @@ const TOOL_LIST: ToolDef[] = [
   {
     id: 'json-yaml',
     name: 'JSON ↔ YAML',
-    description: 'Convert configuration between JSON and YAML.',
+    description: 'Convert configuration between JSON and YAML, with anchors and multi-doc support.',
     category: 'Data',
     icon: 'layers',
     keywords: ['json', 'yaml', 'yml', 'convert', 'config'],
-    status: 'planned'
+    status: 'ready'
   },
   {
     id: 'sql-formatter',
     name: 'SQL Formatter',
-    description: 'Format SQL queries with configurable styles.',
+    description: 'Format SQL with dialect-aware keywords, casing, and indentation.',
     category: 'Data',
     icon: 'database',
-    keywords: ['sql', 'query', 'format', 'database', 'postgres', 'mysql'],
-    status: 'planned'
+    keywords: ['sql', 'query', 'format', 'database', 'postgres', 'mysql', 'sqlite'],
+    status: 'ready'
   },
   {
     id: 'diff-checker',
     name: 'Diff Checker',
-    description: 'Compare two text blocks with line-level highlights.',
+    description: 'Compare two text blocks line by line with additions and removals highlighted.',
     category: 'Data',
     icon: 'diff',
     keywords: ['diff', 'compare', 'text', 'changes', 'merge'],
-    status: 'planned'
+    status: 'ready'
   },
   {
     id: 'base64',
@@ -64,92 +64,139 @@ const TOOL_LIST: ToolDef[] = [
   {
     id: 'url-encoder',
     name: 'URL Encoder / Decoder',
-    description: 'Encode or decode URLs and query components instantly.',
+    description: 'Encode or decode URLs, form bodies, and query components with a parameter breakdown.',
     category: 'Encoding',
     icon: 'link',
-    keywords: ['url', 'uri', 'encode', 'decode', 'percent', 'query'],
+    keywords: ['url', 'uri', 'encode', 'decode', 'percent', 'query', 'form', 'urlencoded', 'params'],
     status: 'ready'
   },
   {
     id: 'html-entities',
     name: 'HTML Entities',
-    description: 'Encode and decode HTML entities.',
+    description: 'Encode and decode named and numeric HTML entities.',
     category: 'Encoding',
     icon: 'code',
     keywords: ['html', 'entities', 'escape', 'unescape', 'encode', 'decode'],
-    status: 'planned'
+    status: 'ready'
   },
   {
     id: 'jwt-decoder',
     name: 'JWT Decoder',
-    description: 'Inspect JWT headers and claims locally — nothing leaves your machine.',
+    description: 'Inspect JWTs, verify HS/RS/ES signatures, and create signed tokens locally.',
     category: 'Security',
     icon: 'key',
-    keywords: ['jwt', 'token', 'jose', 'claims', 'auth', 'decode'],
+    keywords: [
+      'jwt',
+      'token',
+      'jose',
+      'claims',
+      'auth',
+      'decode',
+      'verify',
+      'signature',
+      'hs256',
+      'rs256',
+      'es256',
+      'jwks'
+    ],
     status: 'ready'
   },
   {
     id: 'hash-generator',
     name: 'Hash Generator',
-    description: 'Generate SHA-1, SHA-256, SHA-384, and SHA-512 digests.',
+    description: 'Hash text or files with SHA digests and HMAC keys, then verify them.',
     category: 'Security',
     icon: 'hash',
-    keywords: ['hash', 'sha', 'digest', 'checksum', 'sha256', 'sha512'],
+    keywords: [
+      'hash',
+      'sha',
+      'digest',
+      'checksum',
+      'sha256',
+      'sha512',
+      'hmac',
+      'file hash',
+      'base64',
+      'compare'
+    ],
     status: 'ready'
   },
   {
     id: 'regex-tester',
     name: 'Regex Tester',
-    description: 'Test patterns against sample text with match groups.',
+    description: 'Test patterns against sample text with live highlights and capture groups.',
     category: 'Security',
     icon: 'regex',
     keywords: ['regex', 'regexp', 'pattern', 'match', 'test'],
-    status: 'planned'
+    status: 'ready'
   },
   {
     id: 'uuid-generator',
     name: 'UUID Generator',
-    description: 'Create cryptographically random v4 UUIDs in bulk.',
+    description: 'Generate UUID v4/v7, ULID, nanoid, and namespaced IDs with TXT, CSV, or JSON export.',
     category: 'Generators',
     icon: 'fingerprint',
-    keywords: ['uuid', 'guid', 'random', 'identifier', 'v4'],
+    keywords: [
+      'uuid',
+      'guid',
+      'random',
+      'identifier',
+      'v4',
+      'v7',
+      'ulid',
+      'nanoid',
+      'v3',
+      'v5',
+      'namespaced',
+      'export'
+    ],
     status: 'ready'
   },
   {
     id: 'qr-generator',
     name: 'QR Code Generator',
-    description: 'Turn text or links into downloadable QR codes.',
+    description: 'Turn text or links into QR codes and export them as SVG or PNG.',
     category: 'Generators',
     icon: 'qr',
-    keywords: ['qr', 'code', 'barcode', 'link', 'generate'],
-    status: 'planned'
+    keywords: ['qr', 'code', 'barcode', 'link', 'generate', 'svg', 'png'],
+    status: 'ready'
   },
   {
     id: 'timestamp-converter',
     name: 'Timestamp Converter',
-    description: 'Convert Unix timestamps and human dates in both directions.',
+    description: 'Convert timestamps and dates across time zones with custom formats and durations.',
     category: 'Utilities',
     icon: 'clock',
-    keywords: ['timestamp', 'unix', 'epoch', 'date', 'time', 'iso'],
+    keywords: [
+      'timestamp',
+      'unix',
+      'epoch',
+      'date',
+      'time',
+      'iso',
+      'timezone',
+      'duration',
+      'week'
+    ],
     status: 'ready'
   },
   {
     id: 'cron-parser',
     name: 'Cron Parser',
-    description: 'Explain cron expressions in plain English.',
+    description: 'Explain cron expressions in plain English and preview the next runs.',
     category: 'Utilities',
     icon: 'calendar-clock',
-    keywords: ['cron', 'schedule', 'crontab', 'expression'],
-    status: 'planned'
+    keywords: ['cron', 'schedule', 'crontab', 'expression', 'next run'],
+    status: 'ready'
   },
   {
     id: 'color-converter',
     name: 'Color Converter',
-    description: 'Convert HEX, RGB, HSL, and OKLCH values.',
+    description: 'Convert between HEX, RGB, HSL, and OKLCH with alpha support.',
     category: 'Utilities',
     icon: 'palette',
-    keywords: ['color', 'colour', 'hex', 'rgb', 'hsl', 'convert'],
-    status: 'planned'
+    keywords: ['color', 'colour', 'hex', 'rgb', 'hsl', 'oklch', 'convert'],
+    status: 'ready'
   }
 ]
 

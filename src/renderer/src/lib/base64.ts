@@ -59,8 +59,12 @@ export function decodeBase64(text: string): string {
   }
 }
 
+export function bytesToBase64(bytes: Uint8Array): string {
+  return btoa(bytesToBinary(bytes))
+}
+
 export function bytesToBase64Url(bytes: Uint8Array): string {
-  return toBase64Url(btoa(bytesToBinary(bytes)))
+  return toBase64Url(bytesToBase64(bytes))
 }
 
 export function base64UrlToBytes(segment: string): Uint8Array {

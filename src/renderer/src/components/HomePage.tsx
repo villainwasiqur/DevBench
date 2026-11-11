@@ -43,10 +43,14 @@ export function HomePage({ onNavigate }: HomePageProps): ReactElement {
             <span>
               <strong>{READY_TOOLS.length}</strong> tools ready
             </span>
-            <span className="hero-stats-dot" />
-            <span>
-              <strong>{PLANNED_TOOLS.length}</strong> in the workshop
-            </span>
+            {PLANNED_TOOLS.length > 0 && (
+              <>
+                <span className="hero-stats-dot" />
+                <span>
+                  <strong>{PLANNED_TOOLS.length}</strong> in the workshop
+                </span>
+              </>
+            )}
             <span className="hero-stats-dot" />
             <span className="hero-stats-private">
               <Icon name="shield" size={14} /> 100% offline
@@ -119,34 +123,36 @@ export function HomePage({ onNavigate }: HomePageProps): ReactElement {
         </div>
       </section>
 
-      <section className="home-section">
-        <div className="section-heading">
-          <div>
-            <h2>In the workshop</h2>
-            <p>Next on the roadmap. New tools plug into the same shell.</p>
+      {PLANNED_TOOLS.length > 0 && (
+        <section className="home-section">
+          <div className="section-heading">
+            <div>
+              <h2>In the workshop</h2>
+              <p>Next on the roadmap. New tools plug into the same shell.</p>
+            </div>
+            <span className="section-count">{PLANNED_TOOLS.length} planned</span>
           </div>
-          <span className="section-count">{PLANNED_TOOLS.length} planned</span>
-        </div>
-        <div className="roadmap-grid">
-          {PLANNED_TOOLS.map((tool) => (
-            <button
-              key={tool.id}
-              type="button"
-              className="roadmap-card"
-              onClick={() => onNavigate(tool.id)}
-            >
-              <span className="roadmap-icon">
-                <Icon name={tool.icon} size={16} />
-              </span>
-              <span className="roadmap-text">
-                <span className="roadmap-title">{tool.name}</span>
-                <span className="roadmap-desc">{tool.description}</span>
-              </span>
-              <span className="pill pill-muted">Soon</span>
-            </button>
-          ))}
-        </div>
-      </section>
+          <div className="roadmap-grid">
+            {PLANNED_TOOLS.map((tool) => (
+              <button
+                key={tool.id}
+                type="button"
+                className="roadmap-card"
+                onClick={() => onNavigate(tool.id)}
+              >
+                <span className="roadmap-icon">
+                  <Icon name={tool.icon} size={16} />
+                </span>
+                <span className="roadmap-text">
+                  <span className="roadmap-title">{tool.name}</span>
+                  <span className="roadmap-desc">{tool.description}</span>
+                </span>
+                <span className="pill pill-muted">Soon</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <footer className="home-footer">
         <div className="home-footer-note">

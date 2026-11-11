@@ -98,6 +98,51 @@ function registerIpcHandlers(): void {
     clipboard.writeText(text)
     return true
   })
+  ipcMain.handle('net:fetch-json', async (_event, rawUrl: unknown) => {
+    if (typeof rawUrl !== 'string' || !rawUrl.trim()) {
+      return { ok: false, error: 'Enter a JWKS URL.' }
+    }
+
+    let url: URL
+    try {
+      url = new URL(rawUrl.trim())
+    } catch {
+      return { ok: false, error: 'Enter a valid HTTPS URL.' }
+    }
+    if (url.protocol !== 'https:') {
+      return { ok: false, error: 'Only HTTPS URLs are allowed.' }
+    }
+
+    try {
+      const response = await fetch(url, {
+        headers: { accept: 'application/json' },
+        redirect: 'follow',
+        signal: AbortSignal.timeout(8000)
+      })
+      if (!response.ok) {
+        return { ok: false, error: `The server returned HTTP ${response.status}.` }
+      }
+      if (!response.url.startsWith('https://')) {
+        return { ok: false, error: 'The request redirected outside HTTPS.' }
+      }
+
+      const text = await response.text()
+      if (text.length > 512 * 1024) {
+        return { ok: false, error: 'The JWKS document is too large (limit 512 KB).' }
+      }
+
+      try {
+        return { ok: true, data: JSON.parse(text) }
+      } catch {
+        return { ok: false, error: 'The response is not valid JSON.' }
+      }
+    } catch (reason) {
+      return {
+        ok: false,
+        error: reason instanceof Error ? reason.message : 'The request failed.'
+      }
+    }
+  })
 }
 
 const hasSingleInstanceLock = app.requestSingleInstanceLock()

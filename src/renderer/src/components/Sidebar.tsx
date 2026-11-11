@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactElement } from 'react'
 import { Icon } from '../icons'
 import { CATEGORIES, TOOLS, type ToolDef } from '../tools/registry'
 import type { ThemeId } from '../hooks/useTheme'
+import { useFavorites } from '../lib/prefs'
 import { ThemePicker } from './ThemePicker'
 
 interface SidebarProps {
@@ -17,6 +18,31 @@ function matchesTool(tool: ToolDef, query: string): boolean {
   )
 }
 
+function NavTool({
+  tool,
+  active,
+  onNavigate
+}: {
+  tool: ToolDef
+  active: boolean
+  onNavigate: (id: string) => void
+}): ReactElement {
+  return (
+    <button
+      type="button"
+      title={tool.name}
+      className={`nav-item${active ? ' is-active' : ''}`}
+      onClick={() => onNavigate(tool.id)}
+    >
+      <span className="nav-icon">
+        <Icon name={tool.icon} size={16} />
+      </span>
+      <span className="nav-label">{tool.name}</span>
+      {tool.status === 'planned' && <span className="nav-badge">Soon</span>}
+    </button>
+  )
+}
+
 export function Sidebar({
   activeId,
   onNavigate,
@@ -26,6 +52,7 @@ export function Sidebar({
   const [query, setQuery] = useState('')
   const [version, setVersion] = useState('0.1.0')
   const searchRef = useRef<HTMLInputElement>(null)
+  const favorites = useFavorites()
 
   useEffect(() => {
     const api = window.devkit?.app
@@ -44,19 +71,6 @@ export function Sidebar({
     }
   }, [])
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault()
-        searchRef.current?.focus()
-        searchRef.current?.select()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
   const normalized = query.trim().toLowerCase()
   const groups = CATEGORIES.map((category) => ({
     category,
@@ -65,6 +79,10 @@ export function Sidebar({
     )
   })).filter((group) => group.tools.length > 0)
   const resultCount = groups.reduce((total, group) => total + group.tools.length, 0)
+  const favoriteTools = favorites.flatMap((id) => {
+    const tool = TOOLS.find((entry) => entry.id === id)
+    return tool ? [tool] : []
+  })
 
   return (
     <aside className="sidebar">
@@ -114,23 +132,30 @@ export function Sidebar({
           </button>
         )}
 
+        {!normalized && favoriteTools.length > 0 && (
+          <div className="nav-section">
+            <div className="nav-section-title">Favorites</div>
+            {favoriteTools.map((tool) => (
+              <NavTool
+                key={`favorite-${tool.id}`}
+                tool={tool}
+                active={activeId === tool.id}
+                onNavigate={onNavigate}
+              />
+            ))}
+          </div>
+        )}
+
         {groups.map((group) => (
           <div className="nav-section" key={group.category}>
             <div className="nav-section-title">{group.category}</div>
             {group.tools.map((tool) => (
-              <button
+              <NavTool
                 key={tool.id}
-                type="button"
-                title={tool.name}
-                className={`nav-item${activeId === tool.id ? ' is-active' : ''}`}
-                onClick={() => onNavigate(tool.id)}
-              >
-                <span className="nav-icon">
-                  <Icon name={tool.icon} size={16} />
-                </span>
-                <span className="nav-label">{tool.name}</span>
-                {tool.status === 'planned' && <span className="nav-badge">Soon</span>}
-              </button>
+                tool={tool}
+                active={activeId === tool.id}
+                onNavigate={onNavigate}
+              />
             ))}
           </div>
         ))}

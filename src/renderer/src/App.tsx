@@ -1,4 +1,5 @@
-import { Suspense, useEffect, useRef, type ReactElement } from 'react'
+import { Suspense, useEffect, useRef, useState, type ReactElement } from 'react'
+import { CommandPalette } from './components/CommandPalette'
 import { ComingSoon } from './components/ComingSoon'
 import { HomePage } from './components/HomePage'
 import { NotFound } from './components/NotFound'
@@ -7,6 +8,7 @@ import { TitleBar } from './components/TitleBar'
 import { ToastProvider } from './components/ui/Toast'
 import { useRoute } from './hooks/useRoute'
 import { useTheme } from './hooks/useTheme'
+import { recordRecent } from './lib/prefs'
 import { getTool } from './tools/registry'
 import { toolComponents } from './tools/toolComponents'
 
@@ -23,6 +25,7 @@ function AppShell(): ReactElement {
   const { route, navigate } = useRoute()
   const { theme, selectTheme } = useTheme()
   const contentRef = useRef<HTMLElement>(null)
+  const [paletteOpen, setPaletteOpen] = useState(false)
   const tool = route === 'home' ? undefined : getTool(route)
 
   useEffect(() => {
@@ -32,6 +35,22 @@ function AppShell(): ReactElement {
   useEffect(() => {
     document.title = tool ? `${tool.name} · Dev Toolkit` : 'Dev Toolkit'
   }, [tool])
+
+  useEffect(() => {
+    if (tool?.status === 'ready') recordRecent(tool.id)
+  }, [tool])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setPaletteOpen((open) => !open)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const renderPage = (): ReactElement => {
     if (route === 'home') return <HomePage onNavigate={navigate} />
@@ -62,6 +81,11 @@ function AppShell(): ReactElement {
           {renderPage()}
         </main>
       </div>
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        onNavigate={navigate}
+      />
     </div>
   )
 }

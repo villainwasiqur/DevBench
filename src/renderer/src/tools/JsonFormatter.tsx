@@ -4,10 +4,12 @@ import { ToolPage } from '../components/ToolPage'
 import { Button } from '../components/ui/Button'
 import { CodeArea } from '../components/ui/CodeArea'
 import { CopyButton } from '../components/ui/CopyButton'
+import { FileDrop } from '../components/ui/FileDrop'
 import { Callout } from '../components/ui/Panel'
 import { Segmented } from '../components/ui/Segmented'
 import { Toggle } from '../components/ui/Toggle'
 import { useToast } from '../components/ui/Toast'
+import { usePersistentState } from '../hooks/usePersistentState'
 import { transformJson, validateJson, type JsonError } from '../lib/json'
 import { getTool } from './registry'
 
@@ -31,10 +33,10 @@ const INDENT_OPTIONS: ReadonlyArray<{ value: IndentOption; label: string }> = [
 export default function JsonFormatter(): ReactElement {
   const tool = getTool('json-formatter')!
   const { show } = useToast()
-  const [input, setInput] = useState('')
+  const [input, setInput] = usePersistentState('json-formatter:input', '')
   const [output, setOutput] = useState('')
-  const [indent, setIndent] = useState<IndentOption>('2')
-  const [sortKeys, setSortKeys] = useState(false)
+  const [indent, setIndent] = usePersistentState<IndentOption>('json-formatter:indent', '2')
+  const [sortKeys, setSortKeys] = usePersistentState('json-formatter:sortKeys', false)
   const [error, setError] = useState<JsonError | null>(null)
 
   const loadSample = (): void => {
@@ -136,34 +138,57 @@ export default function JsonFormatter(): ReactElement {
       </div>
 
       <div className="split">
-        <CodeArea
-          label="Input"
-          ariaLabel="JSON input"
-          value={input}
-          onChange={(value) => {
-            setInput(value)
+        <FileDrop
+          accept=".json,.txt,application/json,text/plain"
+          onText={(text, file) => {
+            setInput(text)
             setOutput('')
-            if (error) setError(null)
+            setError(null)
+            show(`Loaded ${file.name}`, 'success')
           }}
-          placeholder='Paste JSON here, e.g. {"hello": "world"}'
-          minHeight={420}
-          invalid={Boolean(error)}
-          actions={
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={<Icon name="trash" size={13} />}
-              onClick={() => {
-                setInput('')
+          onError={(message) => show(message, 'error')}
+        >
+          {({ open }) => (
+            <CodeArea
+              label="Input"
+              ariaLabel="JSON input"
+              value={input}
+              onChange={(value) => {
+                setInput(value)
                 setOutput('')
-                setError(null)
+                if (error) setError(null)
               }}
-              disabled={!input && !output}
-            >
-              Clear
-            </Button>
-          }
-        />
+              placeholder='Paste JSON here, e.g. {"hello": "world"}'
+              minHeight={420}
+              invalid={Boolean(error)}
+              actions={
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={<Icon name="file-code" size={13} />}
+                    onClick={open}
+                  >
+                    Open file
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={<Icon name="trash" size={13} />}
+                    onClick={() => {
+                      setInput('')
+                      setOutput('')
+                      setError(null)
+                    }}
+                    disabled={!input && !output}
+                  >
+                    Clear
+                  </Button>
+                </>
+              }
+            />
+          )}
+        </FileDrop>
 
         <div className="stack">
           {error && (

@@ -1,12 +1,15 @@
-import { useMemo, useState, type ReactElement } from 'react'
+import { useMemo, type ReactElement } from 'react'
 import { Icon } from '../icons'
 import { ToolPage } from '../components/ToolPage'
 import { Button } from '../components/ui/Button'
 import { CodeArea } from '../components/ui/CodeArea'
 import { CopyButton } from '../components/ui/CopyButton'
+import { FileDrop } from '../components/ui/FileDrop'
 import { Callout } from '../components/ui/Panel'
 import { Segmented } from '../components/ui/Segmented'
 import { Toggle } from '../components/ui/Toggle'
+import { useToast } from '../components/ui/Toast'
+import { usePersistentState } from '../hooks/usePersistentState'
 import { decodeBase64, encodeBase64, textByteLength } from '../lib/base64'
 import { formatBytes } from '../lib/format'
 import { getTool } from './registry'
@@ -22,9 +25,10 @@ const SAMPLE = 'Hello, developer! 👋  Everything stays on this machine.'
 
 export default function Base64Tool(): ReactElement {
   const tool = getTool('base64')!
-  const [mode, setMode] = useState<Mode>('encode')
-  const [urlSafe, setUrlSafe] = useState(false)
-  const [input, setInput] = useState('')
+  const { show } = useToast()
+  const [mode, setMode] = usePersistentState<Mode>('base64:mode', 'encode')
+  const [urlSafe, setUrlSafe] = usePersistentState('base64:urlSafe', false)
+  const [input, setInput] = usePersistentState('base64:input', '')
 
   const result = useMemo(() => {
     if (!input) return { output: '', error: '' }
@@ -84,32 +88,55 @@ export default function Base64Tool(): ReactElement {
       </div>
 
       <div className="split">
-        <CodeArea
-          label={mode === 'encode' ? 'Plain text' : 'Base64 input'}
-          ariaLabel={mode === 'encode' ? 'Text to encode' : 'Base64 to decode'}
-          value={input}
-          onChange={setInput}
-          placeholder={
-            mode === 'encode'
-              ? 'Type or paste text to encode as Base64…'
-              : 'Paste Base64 to decode, e.g. aGVsbG8='
-          }
-          minHeight={340}
-          wrap
-          invalid={Boolean(result.error)}
-          actions={
-            <Button
-              variant="ghost"
-              size="sm"
-              icon={<Icon name="trash" size={13} />}
-              onClick={() => setInput('')}
-              disabled={!input}
-            >
-              Clear
-            </Button>
-          }
-          footerExtra={input ? <span>{formatBytes(textByteLength(input))} input</span> : undefined}
-        />
+        <FileDrop
+          accept="text/*,.md,.yaml,.yml,.log,.xml,.csv,.json,.js,.ts,.css,.html"
+          onText={(text, file) => {
+            setInput(text)
+            show(`Loaded ${file.name}`, 'success')
+          }}
+          onError={(message) => show(message, 'error')}
+        >
+          {({ open }) => (
+            <CodeArea
+              label={mode === 'encode' ? 'Plain text' : 'Base64 input'}
+              ariaLabel={mode === 'encode' ? 'Text to encode' : 'Base64 to decode'}
+              value={input}
+              onChange={setInput}
+              placeholder={
+                mode === 'encode'
+                  ? 'Type or paste text to encode as Base64…'
+                  : 'Paste Base64 to decode, e.g. aGVsbG8='
+              }
+              minHeight={340}
+              wrap
+              invalid={Boolean(result.error)}
+              actions={
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={<Icon name="file-code" size={13} />}
+                    onClick={open}
+                  >
+                    Open file
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={<Icon name="trash" size={13} />}
+                    onClick={() => setInput('')}
+                    disabled={!input}
+                  >
+                    Clear
+                  </Button>
+                </>
+              }
+              footerExtra={
+                input ? <span>{formatBytes(textByteLength(input))} input</span> : undefined
+              }
+            />
+          )}
+        </FileDrop>
 
         <CodeArea
           label={mode === 'encode' ? 'Base64 output' : 'Decoded text'}

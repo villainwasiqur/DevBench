@@ -242,6 +242,13 @@ const icons = {
       <path d="M21 4v5h-5" />
     </Svg>
   ),
+  download: (props: IconProps) => (
+    <Svg {...props}>
+      <path d="M12 3v12" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M4 21h16" />
+    </Svg>
+  ),
   play: (props: IconProps) => (
     <Svg {...props}>
       <path d="m8 5 11 7-11 7V5Z" />
@@ -291,6 +298,11 @@ const icons = {
   chevron: (props: IconProps) => (
     <Svg {...props}>
       <path d="m6 9 6 6 6-6" />
+    </Svg>
+  ),
+  star: (props: IconProps) => (
+    <Svg {...props}>
+      <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5Z" />
     </Svg>
   )
 } satisfies Record<string, (props: IconProps) => ReactElement>

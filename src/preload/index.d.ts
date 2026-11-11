@@ -13,6 +13,9 @@ export interface DevkitApi {
   app: {
     version: () => Promise<string>
   }
+  net: {
+    fetchJson: (url: string) => Promise<{ ok: true; data: unknown } | { ok: false; error: string }>
+  }
 }
 
 declare global {
