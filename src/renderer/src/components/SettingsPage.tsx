@@ -292,6 +292,14 @@ export function SettingsPage({
             <dt>Storage</dt>
             <dd>Local to this device</dd>
           </div>
+          <div>
+            <dt>Author</dt>
+            <dd>Anonymous Villain</dd>
+          </div>
+          <div>
+            <dt>License</dt>
+            <dd>MIT</dd>
+          </div>
         </dl>
 
         <div className="settings-about-actions">

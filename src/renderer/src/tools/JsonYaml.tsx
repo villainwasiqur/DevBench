@@ -27,16 +27,16 @@ const INDENT_OPTIONS: ReadonlyArray<{ value: IndentOption; label: string }> = [
 ]
 
 const JSON_SAMPLE = `{
-  "name": "all-in-one-dev-toolkit",
-  "version": "0.3.0",
+  "name": "devbench",
+  "version": "1.0.0",
   "offline": true,
   "tools": ["json", "yaml", "diff", "regex"],
   "build": { "target": "nsis", "arch": ["x64"] },
   "features": { "theme": "cyber-blue", "telemetry": false }
 }`
 
-const YAML_SAMPLE = `name: all-in-one-dev-toolkit
-version: 0.3.0
+const YAML_SAMPLE = `name: devbench
+version: 1.0.0
 offline: true
 tools:
   - json

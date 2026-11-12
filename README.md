@@ -123,6 +123,12 @@ The single exception is opt-in: the JWT tool can fetch a JWKS document from an H
 
 Version history is tracked in [CHANGELOG.md](CHANGELOG.md).
 
+## Author
+
+DevBench is designed and maintained by **Anonymous Villain** ([AnonymousVillain35](https://github.com/AnonymousVillain35)).
+
 ## License
 
-MIT
+DevBench is released under the [MIT License](LICENSE). Copyright © 2026 Anonymous Villain.
+
+Third-party components keep their own licenses, and the installer bundles the Electron runtime with its own notices. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full list and redistribution notes.

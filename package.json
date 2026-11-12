@@ -3,16 +3,25 @@
   "version": "1.0.0",
   "description": "A fast, offline desktop toolbox for everyday developer utilities.",
   "main": "./out/main/index.js",
-  "author": "Dev Toolkit",
+  "author": {
+    "name": "Anonymous Villain",
+    "email": "thenewanonymousvillain@gmail.com",
+    "url": "https://github.com/AnonymousVillain35"
+  },
   "license": "MIT",
   "private": true,
+  "homepage": "https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit#readme",
+  "bugs": {
+    "url": "https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit.git"
   },
   "build": {
-    "appId": "com.devtoolkit.allinone",
+    "appId": "com.anonymousvillain.devbench",
     "productName": "DevBench",
+    "copyright": "Copyright © 2026 Anonymous Villain",
     "directories": {
       "buildResources": "build",
       "output": "release"
@@ -21,6 +30,16 @@
       "out/**/*",
       "package.json",
       "!node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "LICENSE",
+        "to": "LICENSE.txt"
+      },
+      {
+        "from": "THIRD_PARTY_NOTICES.md",
+        "to": "THIRD_PARTY_NOTICES.md"
+      }
     ],
     "win": {
       "icon": "build/icon.png",

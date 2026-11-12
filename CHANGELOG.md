@@ -9,11 +9,15 @@ All notable changes to All-in-One Dev Toolkit are documented here.
 - A route-level error boundary with recovery actions, so a failing page cannot blank the window.
 - A scripted accessibility audit in the end-to-end suite that checks accessible names for buttons, form controls, and images on every page.
 - Accessible names for the hidden file pickers in the JSON Formatter and Base64 tools.
+- An MIT [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); the notices also ship inside the installer.
+- Author and license rows in the Settings About panel.
 
 ### Changed
 
 - First stable release: 15 ready offline tools, six themes, working set, backup and restore, a keyboard-first command palette, and a Windows installer.
 - The README documents the working set, backup and restore, the accessibility guarantees, and the unsigned-installer prompt.
+- Package and installer metadata now identify Anonymous Villain as author, copyright holder, and maintainer (`com.anonymousvillain.devbench`).
+- The sample data in the JSON, YAML, and JWT tools is labeled DevBench instead of the old working name.
 
 ## [0.9.0] - 2026-11-12
 

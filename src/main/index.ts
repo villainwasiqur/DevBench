@@ -163,7 +163,7 @@ if (!hasSingleInstanceLock) {
   })
 
   app.whenReady().then(() => {
-    app.setAppUserModelId('com.devtoolkit.allinone')
+    app.setAppUserModelId('com.anonymousvillain.devbench')
     Menu.setApplicationMenu(null)
     session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => {
       callback(false)

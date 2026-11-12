@@ -28,11 +28,11 @@ const CREATE_ALGORITHMS = [
 
 function makeSampleToken(): string {
   const header = encodeBase64Url(
-    JSON.stringify({ alg: 'HS256', typ: 'JWT', kid: 'dev-toolkit-demo' })
+    JSON.stringify({ alg: 'HS256', typ: 'JWT', kid: 'devbench-demo' })
   )
   const payload = encodeBase64Url(
     JSON.stringify({
-      iss: 'https://devtoolkit.local',
+      iss: 'https://devbench.local',
       sub: 'user_1042',
       name: 'Ada Lovelace',
       role: 'admin',

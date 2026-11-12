@@ -15,12 +15,12 @@ import { transformJson, validateJson, type JsonError } from '../lib/json'
 import { getTool } from './registry'
 
 const SAMPLE = `{
-  "project": "all-in-one-dev-toolkit",
-  "version": "0.1.0",
+  "project": "devbench",
+  "version": "1.0.0",
   "features": ["json", "base64", "jwt", "uuid"],
   "offline": true,
   "platform": { "name": "Windows", "arch": "x64" },
-  "maintainer": { "name": "Dev Toolkit", "tools": 7 }
+  "maintainer": { "name": "Anonymous Villain", "tools": 15 }
 }`
 
 type IndentOption = '2' | '4' | 'tab'
