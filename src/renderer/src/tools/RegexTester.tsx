@@ -3,10 +3,12 @@ import { Icon } from '../icons'
 import { ToolPage } from '../components/ToolPage'
 import { Button } from '../components/ui/Button'
 import { CodeArea } from '../components/ui/CodeArea'
+import { CopyButton } from '../components/ui/CopyButton'
+import { SaveToHistory } from '../components/ui/SaveToHistory'
 import { Callout, Panel } from '../components/ui/Panel'
 import { Toggle } from '../components/ui/Toggle'
 import { usePersistentState } from '../hooks/usePersistentState'
-import { buildFlagString, findMatches } from '../lib/regex'
+import { buildFlagString, findMatches, replaceMatches } from '../lib/regex'
 import { getTool } from './registry'
 
 const SAMPLE_PATTERN = '(?<user>[\\w.]+)@(?<host>[\\w-]+\\.[a-z]{2,})'
@@ -14,6 +16,7 @@ const SAMPLE_TEXT = `Reach the team at dev@toolkit.local or support@example.com.
 Invalid addresses: not-an-email, @missing.user, hello@.
 
 Backups: ops@dev-toolkit.io, security@dev-toolkit.io`
+const DEFAULT_REPLACEMENT = '$<user> [at] $<host>'
 
 const MAX_LISTED_MATCHES = 100
 
@@ -34,11 +37,19 @@ export default function RegexTester(): ReactElement {
   const [multiline, setMultiline] = usePersistentState('regex-tester:multiline', false)
   const [dotAll, setDotAll] = usePersistentState('regex-tester:dotAll', false)
   const [unicode, setUnicode] = usePersistentState('regex-tester:unicode', false)
+  const [replacement, setReplacement] = usePersistentState(
+    'regex-tester:replacement',
+    DEFAULT_REPLACEMENT
+  )
 
   const options = { ignoreCase, multiline, dotAll, unicode }
   const result = useMemo(
     () => (pattern ? findMatches(pattern, options, text) : null),
     [pattern, text, ignoreCase, multiline, dotAll, unicode]
+  )
+  const replaceResult = useMemo(
+    () => (pattern ? replaceMatches(pattern, options, text, replacement) : null),
+    [pattern, text, ignoreCase, multiline, dotAll, unicode, replacement]
   )
 
   const matches = result?.ok ? result.matches : []
@@ -53,6 +64,7 @@ export default function RegexTester(): ReactElement {
     setMultiline(false)
     setDotAll(false)
     setUnicode(false)
+    setReplacement(DEFAULT_REPLACEMENT)
   }
 
   const highlighted = useMemo(() => {
@@ -166,6 +178,49 @@ export default function RegexTester(): ReactElement {
               </pre>
             ) : (
               <span className="panel-placeholder">Paste text to see matches highlighted.</span>
+            )}
+          </Panel>
+
+          <Panel
+            title="Replacement preview"
+            actions={
+              <>
+                <SaveToHistory
+                  toolId="regex-tester"
+                  label="Regex replacement"
+                  value={replaceResult?.ok ? replaceResult.output : ''}
+                />
+                <CopyButton
+                  value={replaceResult?.ok ? replaceResult.output : ''}
+                  label="Copy result"
+                />
+              </>
+            }
+            footer={
+              replaceResult?.ok
+                ? `${replaceResult.replacements.toLocaleString()} replacement${replaceResult.replacements === 1 ? '' : 's'}`
+                : 'Use $1, $&, or $<name> to reference matches.'
+            }
+          >
+            <label className="regex-replace-field">
+              <span>Replace with</span>
+              <input
+                className="text-input mono"
+                value={replacement}
+                onChange={(event) => setReplacement(event.target.value)}
+                placeholder="Replacement pattern…"
+                aria-label="Replacement pattern"
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+              />
+            </label>
+            {replaceResult?.ok && text ? (
+              <pre className="regex-preview" aria-label="Replacement result">
+                {replaceResult.output || '(empty result)'}
+              </pre>
+            ) : (
+              <span className="panel-placeholder">Enter a pattern and text to preview a replacement.</span>
             )}
           </Panel>
         </div>

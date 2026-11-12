@@ -158,3 +158,51 @@ export function findMatches(
 export function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
+
+export type RegexReplaceResult =
+  | { ok: true; output: string; replacements: number }
+  | { ok: false; error: string }
+
+function countMatches(regex: RegExp, input: string): number {
+  regex.lastIndex = 0
+  let count = 0
+  let match: RegExpExecArray | null
+
+  while ((match = regex.exec(input)) !== null) {
+    count += 1
+    if (match[0].length === 0) {
+      const codePoint = input.codePointAt(regex.lastIndex)
+      regex.lastIndex += codePoint !== undefined && codePoint > 0xffff ? 2 : 1
+      if (regex.lastIndex > input.length) break
+    }
+  }
+
+  return count
+}
+
+export function replaceMatches(
+  source: string,
+  options: RegexFlagOptions,
+  input: string,
+  replacement: string
+): RegexReplaceResult {
+  if (!source) return { ok: false, error: 'Enter a regular expression to test.' }
+  if (input.length > MAX_INPUT_LENGTH) {
+    return {
+      ok: false,
+      error: `Input is too large to replace safely (${input.length.toLocaleString()} characters). Keep it under ${MAX_INPUT_LENGTH.toLocaleString()}.`
+    }
+  }
+
+  try {
+    const flags = buildFlagString({ ...options, global: true })
+    const output = input.replace(new RegExp(source, flags), replacement)
+    const replacements = countMatches(new RegExp(source, flags), input)
+    return { ok: true, output, replacements }
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'This regular expression is not valid.'
+    }
+  }
+}

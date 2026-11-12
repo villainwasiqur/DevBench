@@ -25,7 +25,7 @@ function createWindow(): void {
     show: true,
     frame: false,
     backgroundColor: '#0a0e14',
-    title: 'All-in-One Dev Toolkit',
+    title: 'DevBench',
     icon: isDev ? join(app.getAppPath(), 'build/icon.png') : undefined,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

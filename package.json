@@ -1,6 +1,6 @@
 {
   "name": "all-in-one-dev-toolkit",
-  "version": "0.5.0",
+  "version": "1.0.0",
   "description": "A fast, offline desktop toolbox for everyday developer utilities.",
   "main": "./out/main/index.js",
   "author": "Dev Toolkit",
@@ -12,7 +12,7 @@
   },
   "build": {
     "appId": "com.devtoolkit.allinone",
-    "productName": "All-In-One Dev Toolkit",
+    "productName": "DevBench",
     "directories": {
       "buildResources": "build",
       "output": "release"
@@ -39,8 +39,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "All-In-One Dev Toolkit",
-      "artifactName": "All-In-One-Dev-Toolkit-${version}-Setup.${ext}"
+      "shortcutName": "DevBench",
+      "artifactName": "DevBench-${version}-Setup.${ext}"
     }
   },
   "scripts": {
@@ -52,6 +52,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "npm run build && node scripts/e2e-smoke.mjs",
+    "budget": "node scripts/bundle-budget.mjs",
     "build": "npm run typecheck && electron-vite build",
     "build:win": "npm run build && electron-builder --win"
   },

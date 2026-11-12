@@ -2,6 +2,74 @@
 
 All notable changes to All-in-One Dev Toolkit are documented here.
 
+## [1.0.0] - 2026-11-12
+
+### Added
+
+- A route-level error boundary with recovery actions, so a failing page cannot blank the window.
+- A scripted accessibility audit in the end-to-end suite that checks accessible names for buttons, form controls, and images on every page.
+- Accessible names for the hidden file pickers in the JSON Formatter and Base64 tools.
+
+### Changed
+
+- First stable release: 15 ready offline tools, six themes, working set, backup and restore, a keyboard-first command palette, and a Windows installer.
+- The README documents the working set, backup and restore, the accessibility guarantees, and the unsigned-installer prompt.
+
+## [0.9.0] - 2026-11-12
+
+### Added
+
+- Working set page with a sidebar entry, a count badge, and an `Open working set` command in the palette.
+- Save buttons on JSON, YAML, SQL, Regex replacement, Base64, URL, and HTML Entities outputs, with pinning, copy, per-entry delete, and per-tool clearing.
+- 30-entry working-set cap with pinned-entry-aware trimming, a 20k character value limit, and secret-tool denial for the JWT Decoder and Hash Generator.
+- Unit tests for the working-set store and end-to-end checks for saving, pinning, removing, and reopening it.
+
+### Changed
+
+- The working set counts as a preference, so **Clear saved inputs** keeps it while backups include it.
+
+## [0.8.0] - 2026-11-12
+
+### Added
+
+- Settings backup and restore: export every saved preference and tool input to JSON, then import a backup to replace the current data and reload.
+- Backup format validation with entry-count and total-size limits, plus unit tests for create, parse, and apply.
+
+### Changed
+
+- The app, installer, shortcut, and window title are now branded **DevBench** while the repository keeps the All-in-One Dev Toolkit name.
+- Settings shows a Backup & restore panel with export and import actions and honest feedback for invalid files.
+
+## [0.7.0] - 2026-11-12
+
+### Added
+
+- Skip link and a focusable main landmark for keyboard navigation.
+- Route announcements through a polite live region, and copy feedback announced to screen readers.
+- Dependency-free bundle budget check (`npm run budget`) wired into CI for total JS, the largest chunk, and CSS.
+- Keyboard-only end-to-end checks for the skip link, palette arrow navigation, and dialog focus trapping.
+
+### Changed
+
+- The command palette now traps focus, restores the previously focused element on close, and handles Escape at the dialog level.
+- The shortcuts dialog restores focus only when the previous element still exists.
+- The README documents keyboard controls and accessibility behavior.
+
+## [0.6.0] - 2026-11-12
+
+### Added
+
+- Settings page (`Ctrl+,` or the sidebar entry) with instant theme switching, storage metrics, and controls to clear saved tool inputs, pinned tools, or everything at once.
+- Keyboard shortcuts guide, opened with `?` or from the command palette, with grouped reference rows and focus restoration.
+- Command palette commands for opening Settings and the shortcuts guide.
+- Regex Tester replacement preview with `$1`, `$&`, and `$<name>` references, a replacement count, and one-click copy.
+- Unit tests for storage accounting and regex replacement.
+
+### Changed
+
+- Repeated tool data can be reset from Settings without touching favorites, recents, or the theme.
+- The README documents the Settings page, `Ctrl+,`, the `?` shortcut, and regex replacements.
+
 ## [0.5.0] - 2026-11-11
 
 ### Added

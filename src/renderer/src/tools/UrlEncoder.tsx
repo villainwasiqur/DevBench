@@ -4,6 +4,7 @@ import { ToolPage } from '../components/ToolPage'
 import { Button } from '../components/ui/Button'
 import { CodeArea } from '../components/ui/CodeArea'
 import { CopyButton } from '../components/ui/CopyButton'
+import { SaveToHistory } from '../components/ui/SaveToHistory'
 import { Callout, Panel } from '../components/ui/Panel'
 import { Segmented } from '../components/ui/Segmented'
 import { usePersistentState } from '../hooks/usePersistentState'
@@ -122,7 +123,16 @@ export default function UrlEncoder(): ReactElement {
           minHeight={320}
           invalid={!conversion.ok}
           placeholder="Converted value appears here."
-          actions={<CopyButton value={output} />}
+          actions={
+            <>
+              <SaveToHistory
+                toolId="url-encoder"
+                label={mode === 'encode' ? 'URL encoded' : 'URL decoded'}
+                value={output}
+              />
+              <CopyButton value={output} />
+            </>
+          }
         />
       </div>
 

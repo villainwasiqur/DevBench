@@ -91,6 +91,7 @@ export function FileDrop({
         ref={inputRef}
         type="file"
         accept={accept}
+        aria-label="Choose a file to load"
         className="file-input-hidden"
         tabIndex={-1}
         onChange={(event) => {

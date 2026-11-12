@@ -24,7 +24,7 @@ export function TitleBar(): ReactElement {
     <header className="titlebar">
       <div className="titlebar-brand">
         <LogoMark size={22} />
-        <span className="titlebar-name">Dev Toolkit</span>
+        <span className="titlebar-name">DevBench</span>
         <span className="titlebar-tag">All-in-One</span>
       </div>
       <div className="titlebar-drag" />

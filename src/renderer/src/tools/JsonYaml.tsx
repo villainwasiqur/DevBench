@@ -4,6 +4,7 @@ import { ToolPage } from '../components/ToolPage'
 import { Button } from '../components/ui/Button'
 import { CodeArea } from '../components/ui/CodeArea'
 import { CopyButton } from '../components/ui/CopyButton'
+import { SaveToHistory } from '../components/ui/SaveToHistory'
 import { Callout } from '../components/ui/Panel'
 import { Segmented } from '../components/ui/Segmented'
 import { Toggle } from '../components/ui/Toggle'
@@ -173,7 +174,16 @@ export default function JsonYaml(): ReactElement {
             wrap
             minHeight={380}
             placeholder={toYaml ? 'YAML output appears here.' : 'JSON output appears here.'}
-            actions={<CopyButton value={output} />}
+            actions={
+              <>
+                <SaveToHistory
+                  toolId="json-yaml"
+                  label={toYaml ? 'YAML from JSON' : 'JSON from YAML'}
+                  value={output}
+                />
+                <CopyButton value={output} />
+              </>
+            }
             footerExtra={output ? <span>{toYaml ? 'YAML 1.2' : 'JSON'}</span> : undefined}
           />
         </div>

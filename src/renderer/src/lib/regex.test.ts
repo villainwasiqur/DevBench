@@ -4,7 +4,8 @@ import {
   buildFlagString,
   compileRegex,
   escapeRegExp,
-  findMatches
+  findMatches,
+  replaceMatches
 } from './regex'
 
 describe('buildFlagString', () => {
@@ -119,5 +120,52 @@ describe('escapeRegExp', () => {
   it('escapes metacharacters so they match literally', () => {
     const literal = 'a+b.c(d)[e]'
     expect(new RegExp(escapeRegExp(literal)).test(literal)).toBe(true)
+  })
+})
+
+describe('replaceMatches', () => {
+  it('replaces every match and reports the count', () => {
+    const result = replaceMatches('cat', {}, 'cat cat catalog', 'dog')
+    expect(result).toEqual({ ok: true, output: 'dog dog dogalog', replacements: 3 })
+  })
+
+  it('expands numbered and named captures', () => {
+    const result = replaceMatches(
+      '(?<user>[\\w.]+)@(?<host>\\w+)',
+      {},
+      'dev@toolkit',
+      '$<user> at $2 ($1)'
+    )
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.output).toBe('dev at toolkit (dev)')
+    expect(result.replacements).toBe(1)
+  })
+
+  it('supports deleting matches with an empty replacement', () => {
+    const result = replaceMatches('\\s+', {}, 'a  b\n c', '')
+    expect(result).toEqual({ ok: true, output: 'abc', replacements: 2 })
+  })
+
+  it('handles zero-width matches without looping forever', () => {
+    const result = replaceMatches('^', { multiline: true }, 'a\nb', '> ')
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.output).toBe('> a\n> b')
+    expect(result.replacements).toBe(2)
+  })
+
+  it('returns pattern errors instead of throwing', () => {
+    const result = replaceMatches('([', {}, 'text', 'x')
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.error.length).toBeGreaterThan(0)
+  })
+
+  it('rejects oversized input', () => {
+    const result = replaceMatches('a', {}, 'a'.repeat(MAX_INPUT_LENGTH + 1), 'b')
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.error).toMatch(/too large/i)
   })
 })

@@ -4,6 +4,7 @@ import { ToolPage } from '../components/ToolPage'
 import { Button } from '../components/ui/Button'
 import { CodeArea } from '../components/ui/CodeArea'
 import { CopyButton } from '../components/ui/CopyButton'
+import { SaveToHistory } from '../components/ui/SaveToHistory'
 import { Callout } from '../components/ui/Panel'
 import { Segmented } from '../components/ui/Segmented'
 import { usePersistentState } from '../hooks/usePersistentState'
@@ -120,7 +121,16 @@ export default function SqlFormatter(): ReactElement {
           minHeight={360}
           invalid={!result.ok}
           placeholder="Formatted SQL appears here."
-          actions={<CopyButton value={output} />}
+          actions={
+            <>
+              <SaveToHistory
+                toolId="sql-formatter"
+                label="Formatted SQL"
+                value={result.ok ? output : ''}
+              />
+              <CopyButton value={output} />
+            </>
+          }
         />
       </div>
 

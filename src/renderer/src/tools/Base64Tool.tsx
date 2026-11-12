@@ -4,6 +4,7 @@ import { ToolPage } from '../components/ToolPage'
 import { Button } from '../components/ui/Button'
 import { CodeArea } from '../components/ui/CodeArea'
 import { CopyButton } from '../components/ui/CopyButton'
+import { SaveToHistory } from '../components/ui/SaveToHistory'
 import { FileDrop } from '../components/ui/FileDrop'
 import { Callout } from '../components/ui/Panel'
 import { Segmented } from '../components/ui/Segmented'
@@ -147,7 +148,16 @@ export default function Base64Tool(): ReactElement {
           minHeight={340}
           invalid={Boolean(result.error)}
           placeholder={mode === 'encode' ? 'Base64 output appears here.' : 'Decoded text appears here.'}
-          actions={<CopyButton value={result.output} />}
+          actions={
+            <>
+              <SaveToHistory
+                toolId="base64"
+                label={mode === 'encode' ? 'Base64 encoded' : 'Base64 decoded'}
+                value={result.output}
+              />
+              <CopyButton value={result.output} />
+            </>
+          }
         />
       </div>
 

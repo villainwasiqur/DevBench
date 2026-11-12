@@ -3,6 +3,7 @@ import { Icon } from '../icons'
 import { CATEGORIES, TOOLS, type ToolDef } from '../tools/registry'
 import type { ThemeId } from '../hooks/useTheme'
 import { useFavorites } from '../lib/prefs'
+import { useHistory } from '../lib/history'
 import { ThemePicker } from './ThemePicker'
 
 interface SidebarProps {
@@ -53,6 +54,7 @@ export function Sidebar({
   const [version, setVersion] = useState('0.1.0')
   const searchRef = useRef<HTMLInputElement>(null)
   const favorites = useFavorites()
+  const history = useHistory()
 
   useEffect(() => {
     const api = window.devkit?.app
@@ -167,6 +169,33 @@ export function Sidebar({
           </div>
         )}
       </nav>
+
+      {!normalized && (
+        <div className="nav-section nav-section-app">
+          <button
+            type="button"
+            className={`nav-item${activeId === 'history' ? ' is-active' : ''}`}
+            onClick={() => onNavigate('history')}
+          >
+            <span className="nav-icon">
+              <Icon name="history" size={16} />
+            </span>
+            <span className="nav-label">Working set</span>
+            {history.length > 0 && <span className="nav-count">{history.length}</span>}
+          </button>
+          <button
+            type="button"
+            className={`nav-item${activeId === 'settings' ? ' is-active' : ''}`}
+            onClick={() => onNavigate('settings')}
+          >
+            <span className="nav-icon">
+              <Icon name="settings" size={16} />
+            </span>
+            <span className="nav-label">Settings</span>
+            <kbd className="nav-kbd">Ctrl ,</kbd>
+          </button>
+        </div>
+      )}
 
       <div className="sidebar-footer">
         <ThemePicker theme={theme} onSelect={onSelectTheme} />

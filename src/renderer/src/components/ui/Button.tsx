@@ -33,16 +33,13 @@ export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
   active?: boolean
 }
 
-export function IconButton({
-  label,
-  active = false,
-  className = '',
-  children,
-  type = 'button',
-  ...props
-}: IconButtonProps): ReactElement {
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
+  { label, active = false, className = '', children, type = 'button', ...props },
+  ref
+): ReactElement {
   return (
     <button
+      ref={ref}
       type={type}
       aria-label={label}
       title={label}
@@ -52,4 +49,4 @@ export function IconButton({
       {children}
     </button>
   )
-}
+})

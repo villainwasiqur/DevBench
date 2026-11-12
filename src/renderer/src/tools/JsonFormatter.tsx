@@ -4,6 +4,7 @@ import { ToolPage } from '../components/ToolPage'
 import { Button } from '../components/ui/Button'
 import { CodeArea } from '../components/ui/CodeArea'
 import { CopyButton } from '../components/ui/CopyButton'
+import { SaveToHistory } from '../components/ui/SaveToHistory'
 import { FileDrop } from '../components/ui/FileDrop'
 import { Callout } from '../components/ui/Panel'
 import { Segmented } from '../components/ui/Segmented'
@@ -215,7 +216,16 @@ export default function JsonFormatter(): ReactElement {
             wrap
             minHeight={420}
             placeholder="Formatted JSON will appear here."
-            actions={<CopyButton value={output} />}
+            actions={
+              <>
+                <SaveToHistory
+                  toolId="json-formatter"
+                  label={sortKeys ? 'JSON (sorted keys)' : 'JSON'}
+                  value={output}
+                />
+                <CopyButton value={output} />
+              </>
+            }
             footerExtra={
               output ? (
                 <span>

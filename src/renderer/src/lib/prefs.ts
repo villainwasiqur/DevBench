@@ -52,3 +52,8 @@ export function recordRecent(id: string): void {
   if (current[0] === id) return
   recentStore.set([id, ...current.filter((item) => item !== id)].slice(0, MAX_RECENT))
 }
+
+export function clearPreferences(): void {
+  favoritesStore.set([])
+  recentStore.set([])
+}

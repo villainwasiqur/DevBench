@@ -205,6 +205,24 @@ try {
 
   const { evaluate, logs } = session
 
+  const pressKey = async ({ key, code = key, windowsVirtualKeyCode, modifiers = 0 }) => {
+    await session.call('Input.dispatchKeyEvent', {
+      type: 'rawKeyDown',
+      key,
+      code,
+      windowsVirtualKeyCode,
+      modifiers
+    })
+    await session.call('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key,
+      code,
+      windowsVirtualKeyCode,
+      modifiers
+    })
+    await sleep(160)
+  }
+
   await evaluate(`location.hash = '#/home'; true`)
   await sleep(400)
   const home = await evaluate(`(() => ({
@@ -221,9 +239,102 @@ try {
   check('window loads home route', home.hash === '#/home' && home.hero, home)
   check('home reports fifteen ready tools', home.readyCount === true, home.readyCount)
   check('home has no coming-soon section', home.workshop === false, home.workshop)
-  check('window title', /Dev Toolkit$/.test(home.title), home.title)
+  check('window title', /DevBench$/.test(home.title), home.title)
   check('default theme', home.theme === 'cyber-blue' && home.scheme === 'dark', { theme: home.theme, scheme: home.scheme })
   check('strict CSP meta present', home.csp.includes("default-src 'none'") && home.csp.includes("script-src 'self' file:") && home.csp.includes("connect-src 'none'"), home.csp)
+
+  await evaluate(`document.activeElement?.blur(); true`)
+  await pressKey({ key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
+  await sleep(250)
+  const skipLink = await evaluate(`(() => {
+    const el = document.activeElement
+    return {
+      className: el?.className ?? null,
+      text: el?.textContent?.trim() ?? null,
+      top: Math.round(el?.getBoundingClientRect().top ?? -999)
+    }
+  })()`)
+  check(
+    'first Tab reaches the skip link',
+    typeof skipLink.className === 'string' &&
+      skipLink.className.includes('skip-link') &&
+      skipLink.text === 'Skip to content' &&
+      skipLink.top >= 0,
+    skipLink
+  )
+
+  await pressKey({ key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 })
+  const skipTarget = await evaluate(`({
+    tag: document.activeElement?.tagName ?? null,
+    id: document.activeElement?.id ?? null
+  })`)
+  check(
+    'activating the skip link moves focus to main content',
+    skipTarget.tag === 'MAIN' && skipTarget.id === 'main-content',
+    skipTarget
+  )
+
+  await pressKey({ key: 'k', code: 'KeyK', windowsVirtualKeyCode: 75, modifiers: 2 })
+  const paletteFocus = await evaluate(`(async () => {
+    const snapshot = {
+      open: Boolean(document.querySelector('.palette')),
+      focused: document.activeElement?.getAttribute('aria-label') ?? null
+    }
+    const input = document.querySelector('input[aria-label="Command palette search"]')
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'sql')
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 250))
+    return snapshot
+  })()`)
+  await pressKey({ key: 'ArrowDown', code: 'ArrowDown', windowsVirtualKeyCode: 40 })
+  await pressKey({ key: 'ArrowDown', code: 'ArrowDown', windowsVirtualKeyCode: 40 })
+  const paletteSelected = await evaluate(`({
+    index: [...document.querySelectorAll('.palette-item')].findIndex(
+      (el) => el.getAttribute('aria-selected') === 'true'
+    ),
+    label:
+      [...document.querySelectorAll('.palette-item')]
+        .find((el) => el.getAttribute('aria-selected') === 'true')
+        ?.querySelector('.palette-name')?.textContent ?? null
+  })`)
+  await pressKey({ key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 })
+  const paletteKeyboard = await evaluate(`({
+    hash: location.hash,
+    closed: !document.querySelector('.palette'),
+    focus: document.activeElement?.id ?? null
+  })`)
+  check(
+    'keyboard alone opens the palette, moves, and opens a tool',
+    paletteFocus.open === true &&
+      paletteFocus.focused === 'Command palette search' &&
+      paletteSelected.label === 'SQL Formatter' &&
+      paletteKeyboard.hash === '#/sql-formatter' &&
+      paletteKeyboard.closed === true &&
+      paletteKeyboard.focus === 'main-content',
+    { paletteFocus, paletteSelected, paletteKeyboard }
+  )
+
+  await pressKey({ key: '?', code: 'Slash', windowsVirtualKeyCode: 191, modifiers: 8 })
+  const shortcutsFocus = await evaluate(`({
+    open: Boolean(document.querySelector('.shortcuts-dialog')),
+    focused: document.activeElement?.getAttribute('aria-label') ?? null
+  })`)
+  await pressKey({ key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
+  const trapped = await evaluate(`document.activeElement?.getAttribute('aria-label') ?? null`)
+  await pressKey({ key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 })
+  const shortcutsKeyboard = await evaluate(`({
+    closed: !document.querySelector('.shortcuts-dialog'),
+    restored: document.activeElement?.id ?? null
+  })`)
+  check(
+    'keyboard traps focus in the shortcuts dialog and Escape restores it',
+    shortcutsFocus.open === true &&
+      shortcutsFocus.focused === 'Close shortcuts' &&
+      trapped === 'Close shortcuts' &&
+      shortcutsKeyboard.closed === true &&
+      shortcutsKeyboard.restored === 'main-content',
+    { shortcutsFocus, trapped, shortcutsKeyboard }
+  )
 
   const pickerNames = await evaluate(`(async () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
@@ -276,7 +387,13 @@ try {
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, 'base64')
     el.dispatchEvent(new Event('input', { bubbles: true }))
     await new Promise((r) => setTimeout(r, 300))
-    return [...document.querySelectorAll('.nav-item')].map((item) => item.textContent.trim())
+    const results = [...document.querySelectorAll('.nav-item')].map((item) =>
+      item.textContent.trim()
+    )
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(el, '')
+    el.dispatchEvent(new Event('input', { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 200))
+    return results
   })()`)
   check(
     'search filters the tool list',
@@ -302,6 +419,37 @@ try {
     routed.push({ id, ok: heading === true })
   }
   check('every ready tool renders', routed.every((entry) => entry.ok), routed)
+
+  const a11yAudit = await evaluate(`(async () => {
+    const toolIds = ${JSON.stringify(Object.keys(toolNames))}
+    const routes = ['home', 'history', 'settings', ...toolIds]
+    const problems = []
+    const hasAccessibleName = (el) =>
+      Boolean(
+        el.getAttribute('aria-label')?.trim() ||
+          el.getAttribute('title')?.trim() ||
+          el.textContent?.trim()
+      )
+    for (const route of routes) {
+      location.hash = '#/' + route
+      await new Promise((r) => setTimeout(r, route === 'home' || route === 'settings' || route === 'history' ? 250 : 450))
+      document.querySelectorAll('main button').forEach((el) => {
+        if (!hasAccessibleName(el)) problems.push(route + ': button without an accessible name')
+      })
+      document.querySelectorAll('main input, main textarea, main select').forEach((el) => {
+        const hasLabel =
+          Boolean(el.getAttribute('aria-label')?.trim()) ||
+          (el.id && document.querySelector('label[for="' + CSS.escape(el.id) + '"]')) ||
+          Boolean(el.closest('label'))
+        if (!hasLabel) problems.push(route + ': ' + el.tagName.toLowerCase() + ' without a label')
+      })
+      document.querySelectorAll('main img').forEach((el) => {
+        if (!el.hasAttribute('alt')) problems.push(route + ': img without alt')
+      })
+    }
+    return [...new Set(problems)]
+  })()`)
+  check('every page exposes accessible names', a11yAudit.length === 0, a11yAudit)
 
   const jsonOutput = await evaluate(`(async () => {
     location.hash = '#/json-formatter'
@@ -376,10 +524,24 @@ try {
     return {
       cards: document.querySelectorAll('.match-card').length,
       marks: document.querySelectorAll('mark.regex-hit').length,
-      error: document.querySelector('.callout-error')?.innerText ?? null
+      error: document.querySelector('.callout-error')?.innerText ?? null,
+      replacementValue: document.querySelector('input[aria-label="Replacement pattern"]')?.value ?? null,
+      result: document.querySelector('pre[aria-label="Replacement result"]')?.textContent ?? null,
+      footer:
+        [...document.querySelectorAll('.panel-footer')]
+          .map((el) => el.textContent)
+          .find((text) => /replacement/.test(text)) ?? null
     }
   })()`)
   check('regex tester lists matches with highlights', regex.cards > 0 && regex.marks > 0 && !regex.error, regex)
+  check(
+    'regex tester previews replacements with capture references',
+    regex.replacementValue === '$<user> [at] $<host>' &&
+      typeof regex.result === 'string' &&
+      regex.result.includes('dev [at] toolkit.local') &&
+      Boolean(regex.footer?.includes('4 replacements')),
+    regex
+  )
 
   const entitiesOutput = await evaluate(`(async () => {
     location.hash = '#/html-entities'
@@ -412,6 +574,110 @@ try {
     'SQL formatter formats queries through the UI',
     typeof sqlOutput === 'string' && sqlOutput.includes('SELECT') && sqlOutput.includes('WHERE'),
     sqlOutput
+  )
+
+  const savedHistory = await evaluate(`(async () => {
+    const save = [...document.querySelectorAll('button')].find(
+      (button) => button.textContent.trim() === 'Save'
+    )
+    save?.click()
+    await new Promise((r) => setTimeout(r, 300))
+    return {
+      clicked: Boolean(save),
+      toast: document.querySelector('.toast')?.textContent ?? null,
+      labels: JSON.parse(localStorage.getItem('devkit:history') ?? '[]').map((entry) => entry.label)
+    }
+  })()`)
+  check(
+    'tools save outputs to the working set',
+    savedHistory.clicked &&
+      Boolean(savedHistory.toast?.includes('Saved')) &&
+      savedHistory.labels.includes('Formatted SQL'),
+    savedHistory
+  )
+
+  const historyPage = await evaluate(`(async () => {
+    location.hash = '#/history'
+    await new Promise((r) => setTimeout(r, 400))
+    const page = {
+      title: document.title,
+      heading: document.querySelector('.history-page h1')?.textContent ?? null,
+      navCount: document.querySelector('.nav-count')?.textContent ?? null,
+      navItems: [...document.querySelectorAll('.nav-section-app .nav-item')].map((item) =>
+        item.textContent.trim()
+      ),
+      entries: document.querySelectorAll('.history-entry').length,
+      value: document.querySelector('.history-value')?.textContent ?? null
+    }
+    document.querySelector('button[aria-label="Pin saved output"]')?.click()
+    await new Promise((r) => setTimeout(r, 250))
+    return {
+      ...page,
+      pinned: JSON.parse(localStorage.getItem('devkit:history') ?? '[]')[0]?.pinned === true,
+      pressed:
+        document
+          .querySelector('button[aria-label="Unpin saved output"]')
+          ?.getAttribute('aria-pressed') === 'true'
+    }
+  })()`)
+  check(
+    'working set lists and pins saved outputs',
+    historyPage.title === 'Working set · DevBench' &&
+      historyPage.heading === 'Saved outputs' &&
+      historyPage.navCount === '1' &&
+      historyPage.entries === 1 &&
+      Boolean(historyPage.value?.includes('SELECT')) &&
+      historyPage.pinned === true &&
+      historyPage.pressed === true,
+    historyPage
+  )
+
+  const historyDelete = await evaluate(`(async () => {
+    document.querySelector('button[aria-label="Delete saved output"]')?.click()
+    await new Promise((r) => setTimeout(r, 300))
+    return {
+      empty: Boolean(document.querySelector('.history-empty')),
+      navCount: document.querySelector('.nav-count')?.textContent ?? null,
+      stored: JSON.parse(localStorage.getItem('devkit:history') ?? '[]').length
+    }
+  })()`)
+  check(
+    'working set entries can be removed',
+    historyDelete.empty && historyDelete.navCount === null && historyDelete.stored === 0,
+    historyDelete
+  )
+
+  const resavedHistory = await evaluate(`(async () => {
+    location.hash = '#/sql-formatter'
+    await new Promise((r) => setTimeout(r, 400))
+    ;[...document.querySelectorAll('button')]
+      .find((button) => button.textContent.trim() === 'Save')
+      ?.click()
+    await new Promise((r) => setTimeout(r, 300))
+    return JSON.parse(localStorage.getItem('devkit:history') ?? '[]').length
+  })()`)
+  check('working set can be saved again', resavedHistory === 1, resavedHistory)
+
+  const paletteHistory = await evaluate(`(async () => {
+    location.hash = '#/home'
+    await new Promise((r) => setTimeout(r, 300))
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))
+    await new Promise((r) => setTimeout(r, 300))
+    const input = document.querySelector('input[aria-label="Command palette search"]')
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'working set')
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 300))
+    const option = [...document.querySelectorAll('.palette-item')].find((button) =>
+      button.textContent.includes('Open working set')
+    )
+    option?.click()
+    await new Promise((r) => setTimeout(r, 400))
+    return { hasCommand: Boolean(option), hash: location.hash }
+  })()`)
+  check(
+    'command palette opens the working set',
+    paletteHistory.hasCommand && paletteHistory.hash === '#/history',
+    paletteHistory
   )
 
   const colorOutputs = await evaluate(`(async () => {
@@ -686,6 +952,193 @@ try {
     'tool inputs and options persist across navigation',
     persistedInput.value === '1700000000' && persistedInput.zone === 'Asia/Tokyo',
     persistedInput
+  )
+
+  const settings = await evaluate(`(async () => {
+    location.hash = '#/home'
+    await new Promise((r) => setTimeout(r, 400))
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', { key: ',', ctrlKey: true, bubbles: true })
+    )
+    await new Promise((r) => setTimeout(r, 400))
+    const shortcutHash = location.hash
+
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }))
+    await new Promise((r) => setTimeout(r, 250))
+    const input = document.querySelector('input[aria-label="Command palette search"]')
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'settings')
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 250))
+    const command = [...document.querySelectorAll('.palette-item')].find((el) =>
+      el.textContent.includes('Open settings')
+    )
+    const commandVisible = Boolean(command)
+    const hasKbd = Boolean(command?.querySelector('.palette-kbd'))
+    command?.click()
+    await new Promise((r) => setTimeout(r, 400))
+
+    const cards = [...document.querySelectorAll('.theme-card')]
+    const activeBefore =
+      cards.find((card) => card.getAttribute('aria-pressed') === 'true')?.textContent.trim() ?? null
+    cards.find((card) => card.textContent.includes('Cyber Blue'))?.click()
+    await new Promise((r) => setTimeout(r, 300))
+
+    return {
+      shortcutHash,
+      commandVisible,
+      hasKbd,
+      hash: location.hash,
+      page: Boolean(document.querySelector('.settings-page')),
+      cards: cards.length,
+      activeBefore,
+      theme: document.documentElement.dataset.theme,
+      storedTheme: localStorage.getItem('devkit:theme'),
+      metrics: [...document.querySelectorAll('.settings-metric-label')].map((el) =>
+        el.textContent.trim()
+      ),
+      sidebar: [...document.querySelectorAll('.nav-section-app .nav-item')].some((item) =>
+        item.textContent.includes('Settings')
+      ),
+      version: document.querySelector('.about-list dd')?.textContent ?? null
+    }
+  })()`)
+  check('Ctrl+, opens settings', settings.shortcutHash === '#/settings', settings.shortcutHash)
+  check(
+    'palette exposes the settings command',
+    settings.commandVisible && settings.hasKbd && settings.hash === '#/settings' && settings.page,
+    settings
+  )
+  check(
+    'settings lists themes, storage metrics, and about details',
+    settings.cards === 6 &&
+      settings.activeBefore?.includes('Arctic Frost') &&
+      settings.metrics.includes('Tool inputs') &&
+      settings.metrics.includes('Storage used') &&
+      settings.sidebar === true &&
+      /^v\d+\.\d+\.\d+$/.test(settings.version ?? ''),
+    settings
+  )
+  check(
+    'settings theme cards apply and persist the theme',
+    settings.theme === 'cyber-blue' && settings.storedTheme === 'cyber-blue',
+    { theme: settings.theme, storedTheme: settings.storedTheme }
+  )
+
+  const shortcuts = await evaluate(`(async () => {
+    location.hash = '#/home'
+    await new Promise((r) => setTimeout(r, 400))
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: '?', bubbles: true }))
+    await new Promise((r) => setTimeout(r, 300))
+    const dialog = document.querySelector('[role="dialog"][aria-labelledby="shortcuts-title"]')
+    const snapshot = {
+      open: Boolean(dialog),
+      modal: dialog?.getAttribute('aria-modal') ?? null,
+      groups: dialog?.querySelectorAll('.shortcut-group').length ?? 0,
+      rows: dialog?.querySelectorAll('.shortcut-row').length ?? 0,
+      focused: document.activeElement?.getAttribute('aria-label') ?? null
+    }
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await new Promise((r) => setTimeout(r, 250))
+    return { ...snapshot, closed: !document.querySelector('.shortcuts-dialog') }
+  })()`)
+  check(
+    'shortcuts guide opens with ? and closes with Escape',
+    shortcuts.open &&
+      shortcuts.modal === 'true' &&
+      shortcuts.groups === 3 &&
+      shortcuts.rows >= 6 &&
+      shortcuts.focused === 'Close shortcuts' &&
+      shortcuts.closed === true,
+    shortcuts
+  )
+
+  const cleared = await evaluate(`(async () => {
+    location.hash = '#/settings'
+    await new Promise((r) => setTimeout(r, 500))
+    const toolKeys = () =>
+      Object.keys(localStorage).filter(
+        (key) =>
+          key.startsWith('devkit:') &&
+          !['devkit:theme', 'devkit:favorites', 'devkit:recent', 'devkit:history'].includes(key)
+      ).length
+    const before = toolKeys()
+    const themeBefore = localStorage.getItem('devkit:theme')
+    const historyBefore = JSON.parse(localStorage.getItem('devkit:history') ?? '[]').length
+    ;[...document.querySelectorAll('button')]
+      .find((button) => button.textContent.trim() === 'Clear inputs')
+      ?.click()
+    await new Promise((r) => setTimeout(r, 400))
+    return {
+      before,
+      after: toolKeys(),
+      themeBefore,
+      theme: localStorage.getItem('devkit:theme'),
+      historyBefore,
+      historyAfter: JSON.parse(localStorage.getItem('devkit:history') ?? '[]').length,
+      toast: document.querySelector('.toast')?.textContent ?? null
+    }
+  })()`)
+  check(
+    'settings clears saved tool inputs without touching preferences',
+    cleared.before > 0 &&
+      cleared.after === 0 &&
+      cleared.themeBefore === cleared.theme &&
+      cleared.historyBefore === 1 &&
+      cleared.historyAfter === 1 &&
+      Boolean(cleared.toast?.includes('cleared')),
+    cleared
+  )
+
+  const exported = await evaluate(`(async () => {
+    location.hash = '#/settings'
+    await new Promise((r) => setTimeout(r, 500))
+    ;[...document.querySelectorAll('button')]
+      .find((button) => button.textContent.includes('Export JSON'))
+      ?.click()
+    await new Promise((r) => setTimeout(r, 300))
+    return { toast: [...document.querySelectorAll('.toast')].at(-1)?.textContent ?? null }
+  })()`)
+  check(
+    'settings exports a JSON backup',
+    Boolean(exported.toast?.includes('exported')),
+    exported
+  )
+
+  await evaluate(`(() => {
+    window.confirm = () => true
+    const payload = JSON.stringify({
+      kind: 'devbench-settings',
+      version: 1,
+      app: '0.8.0',
+      createdAt: new Date().toISOString(),
+      entries: {
+        'devkit:theme': 'solar-flare',
+        'devkit:favorites': '["hash-generator"]'
+      }
+    })
+    const input = document.querySelector('input[aria-label="Import settings file"]')
+    const transfer = new DataTransfer()
+    transfer.items.add(new File([payload], 'settings.json', { type: 'application/json' }))
+    input.files = transfer.files
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+    return true
+  })()`)
+  await sleep(1800)
+  const imported = await evaluate(`({
+    theme: document.documentElement.dataset.theme,
+    storedTheme: localStorage.getItem('devkit:theme'),
+    favorites: localStorage.getItem('devkit:favorites'),
+    favoritesSection: [...document.querySelectorAll('.nav-section-title')].some(
+      (el) => el.textContent.trim() === 'Favorites'
+    )
+  })`)
+  check(
+    'settings import replaces saved data and reloads the app',
+    imported.theme === 'solar-flare' &&
+      imported.storedTheme === 'solar-flare' &&
+      imported.favorites === '["hash-generator"]' &&
+      imported.favoritesSection === true,
+    imported
   )
 
   const ipc = await evaluate(`(async () => ({

@@ -4,6 +4,7 @@ import { ToolPage } from '../components/ToolPage'
 import { Button } from '../components/ui/Button'
 import { CodeArea } from '../components/ui/CodeArea'
 import { CopyButton } from '../components/ui/CopyButton'
+import { SaveToHistory } from '../components/ui/SaveToHistory'
 import { Callout } from '../components/ui/Panel'
 import { Segmented } from '../components/ui/Segmented'
 import { Toggle } from '../components/ui/Toggle'
@@ -130,7 +131,16 @@ export default function HtmlEntities(): ReactElement {
               ? 'Encoded entities appear here.'
               : 'Decoded text appears here.'
           }
-          actions={<CopyButton value={conversion.output} />}
+          actions={
+            <>
+              <SaveToHistory
+                toolId="html-entities"
+                label={mode === 'encode' ? 'HTML encoded' : 'HTML decoded'}
+                value={conversion.output}
+              />
+              <CopyButton value={conversion.output} />
+            </>
+          }
           footerExtra={
             conversion.output ? (
               <span>

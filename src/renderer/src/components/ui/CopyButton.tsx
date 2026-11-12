@@ -36,7 +36,7 @@ export function CopyButton({
         if (success) setCopied(true)
       }}
     >
-      {copied ? 'Copied' : label}
+      <span aria-live="polite">{copied ? 'Copied' : label}</span>
     </Button>
   )
 }
