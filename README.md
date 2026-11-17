@@ -4,7 +4,7 @@ A fast, offline desktop toolbox for everyday developer utilities. Everything run
 
 Built with Electron, React, TypeScript, and Vite. The installer and window are branded **DevBench**, while the repository keeps the All-in-One Dev Toolkit name.
 
-[![CI](https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit/actions/workflows/ci.yml)
+[![CI](https://github.com/villainwasiqur/DevBench/actions/workflows/ci.yml/badge.svg)](https://github.com/villainwasiqur/DevBench/actions/workflows/ci.yml)
 
 ## Tools
 
@@ -125,7 +125,7 @@ Version history is tracked in [CHANGELOG.md](CHANGELOG.md).
 
 ## Author
 
-DevBench is designed and maintained by **Anonymous Villain** ([AnonymousVillain35](https://github.com/AnonymousVillain35)).
+DevBench is designed and maintained by **Anonymous Villain** ([villainwasiqur](https://github.com/villainwasiqur)).
 
 ## License
 

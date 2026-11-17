@@ -25,7 +25,7 @@ const PNG_SIZES: ReadonlyArray<{ value: PngSize; label: string }> = [
   { value: '1024', label: '1024 px' }
 ]
 
-const SAMPLE = 'https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit'
+const SAMPLE = 'https://github.com/villainwasiqur/DevBench'
 
 function triggerDownload(href: string, filename: string): void {
   const anchor = document.createElement('a')

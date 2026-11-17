@@ -6,17 +6,17 @@
   "author": {
     "name": "Anonymous Villain",
     "email": "thenewanonymousvillain@gmail.com",
-    "url": "https://github.com/AnonymousVillain35"
+    "url": "https://github.com/villainwasiqur"
   },
   "license": "MIT",
   "private": true,
-  "homepage": "https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit#readme",
+  "homepage": "https://github.com/villainwasiqur/DevBench#readme",
   "bugs": {
-    "url": "https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit/issues"
+    "url": "https://github.com/villainwasiqur/DevBench/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AnonymousVillain35/All-In-One-Dev-Toolkit.git"
+    "url": "git+https://github.com/villainwasiqur/DevBench.git"
   },
   "build": {
     "appId": "com.anonymousvillain.devbench",
